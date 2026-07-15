@@ -1,28 +1,31 @@
 package com.detrox.HotelHub.entity;
 
-import com.detrox.HotelHub.entity.enums.Gender;
+import com.detrox.HotelHub.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
-public class Guest {
+@Table(name = "app_user")
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(unique = true, nullable = false)
+    private String email;
 
     @Column(nullable = false)
+    private String password;
+
     private String name;
 
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private Gender gender;
-
-    private Integer age;
+    private Set<Role> roles;
 }
