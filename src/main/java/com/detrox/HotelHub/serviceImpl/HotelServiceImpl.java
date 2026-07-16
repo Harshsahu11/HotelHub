@@ -2,9 +2,11 @@ package com.detrox.HotelHub.serviceImpl;
 
 import com.detrox.HotelHub.dto.HotelDto;
 import com.detrox.HotelHub.entity.Hotel;
+import com.detrox.HotelHub.entity.Room;
 import com.detrox.HotelHub.exception.ResourceNotFoundException;
 import com.detrox.HotelHub.repository.HotelRepository;
 import com.detrox.HotelHub.service.HotelService;
+import com.detrox.HotelHub.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
 public class HotelServiceImpl implements HotelService {
 
     private final HotelRepository hotelRepository;
+
+    private final InventoryService inventoryService;
 
     private final ModelMapper modelMapper;
 
@@ -64,6 +68,8 @@ public class HotelServiceImpl implements HotelService {
 
         hotelRepository.deleteById(id);
 
+
+
     }
 
     @Override
@@ -75,7 +81,10 @@ public class HotelServiceImpl implements HotelService {
                 );
 
         hotel.setActive(true);
+
+        for(Room room : hotel.getRoom()){
+            inventoryService.initializeRoomForAYear(room);
+        }
+
     }
-
-
 }

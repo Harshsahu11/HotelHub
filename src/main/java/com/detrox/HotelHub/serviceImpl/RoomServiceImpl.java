@@ -6,6 +6,7 @@ import com.detrox.HotelHub.entity.Room;
 import com.detrox.HotelHub.exception.ResourceNotFoundException;
 import com.detrox.HotelHub.repository.HotelRepository;
 import com.detrox.HotelHub.repository.RoomRepository;
+import com.detrox.HotelHub.service.InventoryService;
 import com.detrox.HotelHub.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,8 @@ public class RoomServiceImpl implements RoomService {
 
     private final HotelRepository hotelRepository;
 
+    private final InventoryService inventoryService;
+
     private final ModelMapper modelMapper;
 
     @Override
@@ -36,6 +39,10 @@ public class RoomServiceImpl implements RoomService {
         Room room = modelMapper.map(roomDto, Room.class);
         room.setHotel(hotel);
         room = roomRepository.save(room);
+
+        if(hotel.getActive()){
+            inventoryService.initializeRoomForAYear(room);
+        }
 
         return modelMapper.map(room,RoomDto.class);
     }
