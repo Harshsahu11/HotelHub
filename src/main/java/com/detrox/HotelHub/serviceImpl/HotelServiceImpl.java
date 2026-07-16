@@ -36,8 +36,34 @@ public class HotelServiceImpl implements HotelService {
         Hotel hotel = hotelRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException
-                                ("Hotel not found with id: "+id)
-                        );
+                        ("Hotel not found with id: "+id)
+                );
         return modelMapper.map(hotel,HotelDto.class);
     }
+
+    @Override
+    public HotelDto updateHotelById(Long id, HotelDto hotelDto) {
+        log.info("Updating the Hotel with Id: {}",id);
+        Hotel hotel = hotelRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException
+                        ("Hotel not found with id: "+id)
+                );
+        modelMapper.map(hotelDto,Hotel.class);
+        hotel = hotelRepository.save(hotel);
+        return modelMapper.map(hotel, HotelDto.class);
+    }
+
+    @Override
+    public void deleteHotelById(Long id) {
+        boolean exists = hotelRepository.existsById(id);
+        if(!exists)
+            throw new ResourceNotFoundException
+                    ("Hotel not found with id: "+id);
+
+        hotelRepository.deleteById(id);
+
+    }
+
+
 }
