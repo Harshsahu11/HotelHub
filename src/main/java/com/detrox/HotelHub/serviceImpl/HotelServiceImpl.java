@@ -50,6 +50,7 @@ public class HotelServiceImpl implements HotelService {
                         ("Hotel not found with id: "+id)
                 );
         modelMapper.map(hotelDto,Hotel.class);
+        hotel.setId(id);
         hotel = hotelRepository.save(hotel);
         return modelMapper.map(hotel, HotelDto.class);
     }
