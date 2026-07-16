@@ -22,7 +22,7 @@ public class InventoryServiceImpl implements InventoryService {
     public void initializeRoomForAYear(Room room) {
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusYears(1);
-        for(; !today.isAfter(endDate);today.plusDays(1)){
+        for(; !today.isAfter(endDate);today = today.plusDays(1)){
             Inventory inventory = Inventory.builder()
                     .hotel(room.getHotel())
                     .room(room)
@@ -41,6 +41,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public void deleteFutureInventories(Room room) {
-
+        LocalDate today = LocalDate.now();
+        inventoryRepository.deleteByDateAfterAndRoom(today,room);
     }
 }

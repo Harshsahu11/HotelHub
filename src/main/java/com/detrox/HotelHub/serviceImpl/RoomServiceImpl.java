@@ -8,6 +8,7 @@ import com.detrox.HotelHub.repository.HotelRepository;
 import com.detrox.HotelHub.repository.RoomRepository;
 import com.detrox.HotelHub.service.InventoryService;
 import com.detrox.HotelHub.service.RoomService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -71,10 +72,12 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
+    @Transactional
     public void deleteRoomById( Long roomId) {
-        boolean exists = roomRepository.existsById(roomId);
-        if(!exists)
-            throw new ResourceNotFoundException("Hotel not found with id: "+roomId);
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException
+                        ("Hotel not found with id: "+roomId));
+        inventoryService.deleteFutureInventories(room);
         roomRepository.deleteById(roomId);
     }
 

@@ -7,6 +7,7 @@ import com.detrox.HotelHub.exception.ResourceNotFoundException;
 import com.detrox.HotelHub.repository.HotelRepository;
 import com.detrox.HotelHub.service.HotelService;
 import com.detrox.HotelHub.service.InventoryService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -60,28 +61,30 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
+    @Transactional
     public void deleteHotelById(Long id) {
-        boolean exists = hotelRepository.existsById(id);
-        if(!exists)
-            throw new ResourceNotFoundException
-                    ("Hotel not found with id: "+id);
-
-        hotelRepository.deleteById(id);
-
-
-
-    }
-
-    @Override
-    public void activateHotelById(Long id) {
         Hotel hotel = hotelRepository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException
                         ("Hotel not found with id: "+id)
                 );
 
-        hotel.setActive(true);
+        hotelRepository.deleteById(id);
+        for(Room room : hotel.getRoom()){
+            inventoryService.deleteFutureInventories(room);
+        }
+    }
 
+    @Override
+    @Transactional
+    public void activateHotelById(Long hotelId) {
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException
+                        ("Hotel not found with id: "+hotelId)
+                );
+
+        hotel.setActive(true);
         for(Room room : hotel.getRoom()){
             inventoryService.initializeRoomForAYear(room);
         }
